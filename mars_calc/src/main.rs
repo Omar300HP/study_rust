@@ -3,9 +3,7 @@ use std::io;
 fn main() {
     loop {
         println!("Enter your weight(kg): ");
-
         let weight: f32 = read_weight();
-
         let mars_weight: f32 = calculate_weight_on_mars(weight);
 
         println!(
