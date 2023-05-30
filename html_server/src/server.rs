@@ -2,6 +2,8 @@ use std::fs;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::net::TcpStream;
+
+use super::http::Request;
 pub struct Server {
     ip: String,
     port: String,
@@ -45,6 +47,11 @@ impl Server {
                                 "Was able to read from connection {}",
                                 String::from_utf8_lossy(&buffer)
                             );
+
+                            match Request::try_from(&buffer[..]) {
+                                Ok(request) => {}
+                                Err(e) => println!("Failed to parse request {}", e),
+                            };
 
                             Server::handle_connection(&mut stream)
                         }

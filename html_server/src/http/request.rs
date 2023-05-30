@@ -4,11 +4,11 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{from_utf8, Utf8Error};
 
-pub struct Request {
-    path: String,
-    query: Option<String>,
+pub struct Request<'buf> {
+    path: &'buf str,
+    query: Option<&'buf str>,
     method: Method,
-    protocol: String,
+    protocol: &'buf str,
 }
 
 fn get_next_word(request: &str) -> Option<(&str, &str)> {
@@ -21,10 +21,10 @@ fn get_next_word(request: &str) -> Option<(&str, &str)> {
     None
 }
 
-impl TryFrom<&[u8]> for Request {
+impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     type Error = RequestParseError;
 
-    fn try_from(buffer: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buffer: &'buf [u8]) -> Result<Request<'buf>, Self::Error> {
         let request = from_utf8(buffer)?;
 
         let (method, request) = get_next_word(request).ok_or(RequestParseError::InvalidRequest)?;
@@ -47,7 +47,12 @@ impl TryFrom<&[u8]> for Request {
             path = &path[..index];
         }
 
-        unimplemented!()
+        Ok(Self {
+            path,
+            query,
+            method,
+            protocol,
+        })
     }
 }
 
